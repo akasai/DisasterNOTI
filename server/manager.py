@@ -1,17 +1,30 @@
-import MySQLdb
+from server import cursor, model
 
-from server import app, errLog
-
-class Singleton(type):
+class SingletonType(type):
     def __call__(_cls, *args, **kwargs):
         try:
             return _cls.__intsance
         except AttributeError:
-            _cls.__instance = super(Singleton, _cls).__call__(*args, **kwargs)
-            return _cls.__instace
+            _cls.__instance = super(SingletonType, _cls).__call__(*args, **kwargs)
+            return _cls.__instance
+
+class APIController(metaclass=SingletonType):
+    def process(self, _type, _data=None):
+        if _type == "home":
+            return DBC.query("token",_data)
+            
 
 #### 아래부터 수정중 DBconnection
-class DBManager(metaclass=Singleton):
+class DBController(metaclass=SingletonType):
+    def query(self, _model, *_args):
+        if _model == "token":
+            return model.tokenSelect(cursor, _args[0]) 
+    
+    def commit(self):
+        pass
+        #db.session.commit()
+    '''
+
     def query(self, model, *args):
         if model == User:
             user_key = args[0]
@@ -41,8 +54,8 @@ class DBManager(metaclass=Singleton):
     def addUser(self, user_key):
         u = self.query(User, user_key)
         if u is None:
-            u = User(user_key)
             self.add(u)
+            u = User(user_key)
 
     def deleteUser(self, user_key):
         u = self.query(User, user_key)
@@ -68,5 +81,6 @@ class DBManager(metaclass=Singleton):
     def commit(self):
         db.session.commit()
 
-
-DBAdmin = DBManager()
+'''
+APIC = APIController()
+DBC = DBController()
