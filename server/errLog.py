@@ -1,15 +1,11 @@
-import logging
-from logging.handlers import RotatingFileHandler
-#from logging import Formatter
-
 from server import app
 
-import os
-import time
+#import logging
+from logging.handlers import RotatingFileHandler
+from logging import Formatter
 
 fileMaxByte = 1024 * 1024 * 100 #100MB
-#fomatter = logging.Formatter('[%(asctime)19s] [%(levelname)8s] [%(filename)s:%(lineno)s] [%(processName)12s] - %(message)s')
-fomatter = logging.Formatter('[%(asctime)19s] [%(levelname)8s] [%(processName)12s] - %(message)s')
+fomatter = Formatter('[%(asctime)19s] [%(levelname)8s] [%(processName)12s] - %(message)s')
 
 fileHandler = RotatingFileHandler('./log/serverLog.log', maxBytes=fileMaxByte, backupCount=10, encoding="utf-8")
 fileHandler.setFormatter(fomatter)
@@ -44,6 +40,10 @@ def viewLog(mode, msg=None):
         print()
         app.logger.critical(msg)
         print()
+    elif mode is "error":
+        print()
+        app.logger.warning(msg)
+        print()
     elif mode is "warning":
         print()
         app.logger.warning(msg)
@@ -66,8 +66,6 @@ def viewLog(mode, msg=None):
         app.logger.info("[block] user_key : {}".format(data))
     elif mode is "exit":
         app.logger.info("[exit] user_key : {}".format(data))
-    elif mode is "fail":
-        app.logger.info("[fail] request process fail")
     '''
 '''
 logger.setLevel(logging.DEBUG)

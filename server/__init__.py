@@ -10,12 +10,12 @@ app.config.from_object(config.DevConfig)
 
 #ErrorModule import
 from server import errLog
-errLog.setLogger(app,0)
+errLog.setLogger(app,10)
 
 #DB Connect & model initialize
 try:
     db = MySQLdb.connect(**DB_Config.db_config)
-    cursor = db.cursor()
+    
     errLog.viewLog("info", "{0} Connected".format(db))
 except BaseException as b:
     errLog.viewLog("critical", b)

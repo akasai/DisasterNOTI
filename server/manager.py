@@ -1,4 +1,4 @@
-from server import cursor, model
+from server import db, model
 
 class SingletonType(type):
     def __call__(_cls, *args, **kwargs):
@@ -9,20 +9,26 @@ class SingletonType(type):
             return _cls.__instance
 
 class APIController(metaclass=SingletonType):
-    def process(self, _type, _data=None):
+    def process(self, _type, *_data):
         if _type == "home":
-            return DBC.query("token",_data)
+            return_key = str(DBC.query("getToken",*_data))
+            return return_key
+        elif _type == "auth":
+            if str(DBC.query("setToken", *_data)) == "success":
+                DBC.commit()
             
 
 #### 아래부터 수정중 DBconnection
 class DBController(metaclass=SingletonType):
+    cursor = db.cursor()
     def query(self, _model, *_args):
-        if _model == "token":
-            return model.tokenSelect(cursor, _args[0]) 
-    
+        if _model == "getToken":
+            return model.tokenSelect(self.cursor, _args[0])
+        elif _model == "setToken":
+            return model.tokenInsert(self.cursor, _args[0], _args[1])
+
     def commit(self):
-        pass
-        #db.session.commit()
+        db.commit()
     '''
 
     def query(self, model, *args):

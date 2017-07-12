@@ -1,9 +1,11 @@
 from server import app, errLog
-from flask import request, render_template, abort
+from Tool.CommonTool import ENC
 from .manager import APIC
 
-def error(_statusCode, _msg):
-    errLog.viewLog("warning", "[{0}]{1}".format(_statusCode,_msg))
+from flask import request, render_template, abort
+
+def error(_statusCode, _msg, _ip=None):
+    errLog.viewLog("warning", "[{0}]{1} : {2}".format(_statusCode,_msg,_ip))
     return abort(_statusCode, 'Access Denied. '+str(_msg))
 
 @app.route('/', methods=["GET"])
@@ -13,38 +15,31 @@ def index():
         uri = request.args.get('URI')
         userIP = request.remote_addr
         decrypt_Key = APIC.process("home", userIP)
-
+        
         if key == None:
-            if decrypt_Key:
+            if decrypt_Key =='None':
                 return render_template("index.html")
             else:
-                return render_template("auth.html", key=str(decrypt_Key).decode())
+                return render_template("auth.html", key=decrypt_Key)
         else:
-            if key == decrypt_Key:#).decode():
+            if key == decrypt_Key:
                 if uri == None:
-                    return error(412, "Wrong URL")
+                    return error(412, "Wrong URL", userIP)
                 else:
                     return redirect("/pulse?Key="+key+"URI="+uri)
             else:
-                    return error(401,'Check Your Authorization Key')
+                return error(401,'Check Your Authorization Key',userIP)
 
-    '''
 @app.route('/auth', methods=['GET','POST'])
 def auth():
+    userIP = request.remote_addr
     if request.method == 'POST':
-        userIP = request.remote_addr
-        type = request.form['earthquake_pulse']
-        encrypt = keyEncrypt(userIP, type)
+        type_1 = request.form['pulse_permission']
+        type_2 = request.form['noti_permission']
+        encryptKey = ENC.keyEncrypt(userIP)
+        
+        APIC.process("auth", userIP, encryptKey)
 
-        #db = MySQLdb.connect(host=dbServer,port=port,user="root",passwd="1111",db="test", charset='utf8')
-        #cursor = db.cursor()
-        #query = "insert into tb_access_auth values ('"+userIP+"',HEX(AES_ENCRYPT('"+encrypt+"','acorn')),sysdate(),'"+type+"');"
-        #cursor.execute(query)
-        
-        #db.commit()
-        #db.close()
-        
-        return render_template("auth.html", key = encrypt)
+        return render_template("auth.html", key=encryptKey)
     elif request.method == 'GET':
-        return error(403, 'Unauthorized Access!')
-    '''
+        return error(403, 'Unauthorized Access!', userIP)
