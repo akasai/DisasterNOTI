@@ -43,3 +43,41 @@ def auth():
         return render_template("auth.html", key=encryptKey)
     elif request.method == 'GET':
         return error(403, 'Unauthorized Access!', userIP)
+
+@app.route('/pulse', methods=['GET'])
+def pulse():
+    key = request.args.get('Key')
+    userIP = request.remote_addr
+    
+    if APIC.process("valid", key):
+        uri = request.args.get('URI')
+        if len(uri) < 10:
+            return error(412, "Wrong URL", userIP)
+        else:
+            pass #계속
+    else:
+        return error(401,'Check Your Authorization Key', userIP)
+    
+    
+    
+    '''
+    else:
+        
+        
+        
+        
+            try:
+                done_queue = Queue()
+            
+                module_proc = Process(target=setRespJson, args=(uri, done_queue,), name='Pulse-Process'+strftime('%m%d%H%M%S', localtime()))
+                module_proc.start()
+
+                print("\n\t[{0}]\n\t* PulseData Call - [{1}]\n\t[{2}]\n".format(ctime(), key, module_proc.name))
+
+                resp = callback + "(" + done_queue.get() + ")"
+                done_queue.close()
+                return returnJson(resp, module_proc)
+            except BaseException as e:
+                print(e)
+                return error(412, "Wrong URL")
+    '''

@@ -1,15 +1,15 @@
 from server import errLog
-'''
-superclass로 각각의 벨류 뽑는 클래스 만들기
-ex) "success" 가 STR이 아니라 각각의 클래스 type으로 return
+from .message import SuccessMessage, FailMessage
 
-'''
 class tokenSelect:
     def __init__(self, _cursor, _ip="%"):
         self.query = "select ip, AES_DECRYPT(UNHEX(accessKey), 'acorn') from tb_access_auth where ip like'"+_ip+"';"
         self.cur = _cursor
-        self.cur.execute(self.query)
-        self.isEmpty(self.cur.fetchone())
+        try:
+            self.cur.execute(self.query)
+            self.isEmpty(self.cur.fetchone())
+        except BaseException as e:
+            errLog.viewLog("error", e)
     
     def isEmpty(self, _row):
         if _row:    #값이 있으면
@@ -28,10 +28,29 @@ class tokenInsert:
         self.cur = _cursor
         try:
             self.cur.execute(self.query)
-            self.returnMsg = "success"
+            self.returnMsg = SuccessMessage().getMessage()
         except BaseException as e:
             errLog.viewLog("error", e)
-            self.returnMsg = "fail"
+            self.returnMsg = FailMessage().getMessage()
+
+    def __repr__(self):
+        return self.returnMsg
+
+class ValidSelect:
+    def __init__(self, _cursor, _accessKey):
+        self.query = "select * from tb_access_auth where accessKey = HEX(AES_ENCRYPT('"+_accessKey+"','acorn'));"
+        self.cur = _cursor
+        try:
+            self.cur.execute(self.query)
+            self.isEmpty(self.cur.fetchone())
+        except BaseException as e:
+            errLog.viewLog("error", e)
+        
+    def isEmpty(self, _row):
+        if _row:    #값이 있으면
+            self.returnMsg = SuccessMessage().getMessage()
+        else:       #값이 없으면
+            self.returnMsg = FailMessage().getMessage()
 
     def __repr__(self):
         return self.returnMsg
