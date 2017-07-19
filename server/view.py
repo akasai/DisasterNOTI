@@ -1,8 +1,10 @@
 from server import app, errLog
-from Tool.CommonTool import ENC
+from Tool.CommonTool import ENC, setRespJson
 from .manager import APIC
 
 from flask import request, render_template, abort
+from multiprocessing import Process, current_process, Queue
+from time import localtime, strftime, ctime # , strptime, sleep
 
 def error(_statusCode, _msg, _ip=None):
     errLog.viewLog("warning", "[{0}]{1} : {2}".format(_statusCode,_msg,_ip))
@@ -40,6 +42,7 @@ def auth():
         
         APIC.process("auth", userIP, encryptKey)
 
+        errLog.viewLog("info", "Token issued : {0}".format(userIP))
         return render_template("auth.html", key=encryptKey)
     elif request.method == 'GET':
         return error(403, 'Unauthorized Access!', userIP)
@@ -51,33 +54,27 @@ def pulse():
     
     if APIC.process("valid", key):
         uri = request.args.get('URI')
+        
         if len(uri) < 10:
             return error(412, "Wrong URL", userIP)
+        #프로세스 로직이 꼬인듯?
         else:
-            pass #계속
+            try:
+                done_queue = Queue()
+                module_proc = Process(target=setRespJson(uri, done_queue), name='Pulse-Process'+strftime('%m%d%H%M%S', localtime()))
+                module_proc.start()
+                print("\n\t[{0}]\n\t* PulseData Call - [{1}]\n\t[{2}]\n".format(ctime(), key, module_proc.name))
+                errLog.viewLog("info", "PulseData Call : {0}".format(userIP))
+                resp = done_queue.get()
+            except BaseException as e:
+                print(e)
+                return error(412, "Wrong URL", userIP)
+            finally:
+                print("\n\t[{0}]\n\t* PulseData Success Return\n\t[{1} Close]\n".format(ctime(), module_proc.name))
+                errLog.viewLog("info", "PulseData Return : {0}".format(userIP))
+                done_queue.close()
+                module_proc.join()
+                return resp
     else:
         return error(401,'Check Your Authorization Key', userIP)
     
-    
-    
-    '''
-    else:
-        
-        
-        
-        
-            try:
-                done_queue = Queue()
-            
-                module_proc = Process(target=setRespJson, args=(uri, done_queue,), name='Pulse-Process'+strftime('%m%d%H%M%S', localtime()))
-                module_proc.start()
-
-                print("\n\t[{0}]\n\t* PulseData Call - [{1}]\n\t[{2}]\n".format(ctime(), key, module_proc.name))
-
-                resp = callback + "(" + done_queue.get() + ")"
-                done_queue.close()
-                return returnJson(resp, module_proc)
-            except BaseException as e:
-                print(e)
-                return error(412, "Wrong URL")
-    '''

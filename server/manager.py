@@ -37,32 +37,6 @@ class DBController(metaclass=SingletonType):
         db.commit()
     
         '''
-    def query(self, model, *args):
-        if model == User:
-            user_key = args[0]
-            return User.query.filter_by(user_key=user_key).first()
-        elif model == Menu:
-            if len(args) == 3:
-                date = args[0]
-                place = args[1]
-                time = args[2]
-                return Menu.query.filter_by(date=date, place=place, time=time).first()
-        elif model == Poll:
-            if len(args) == 2:
-                menu = args[0]
-                user = args[1]
-                return Poll.query.filter_by(menu=menu, user=user).first()
-
-    def updateUserActionDate(self, user_key):
-        u = self.query(User, user_key)
-        if u:
-            u.last_active_date = datetime.strftime(
-                datetime.utcnow() + timedelta(hours=9),
-                "%Y.%m.%d %H:%M:%S")
-            self.commit()
-        else:
-            self.addUser(user_key)
-
     def addUser(self, user_key):
         u = self.query(User, user_key)
         if u is None:

@@ -35,6 +35,10 @@ def setLogger(app, level):
 def viewLog(mode, msg=None):
     '''
     전달 mode에 따라 logging.
+    critical : 서버운영에 지장을 주는 정도
+    error : 서버운영은 유지되지만 기능에 지장이 생기는 정도
+    warning : 서버운영은 유지되지만 기능적 제한이 생기는 정도
+    info : 서버운영 알림
     ''' 
     if mode is "critical":
         print()
@@ -52,27 +56,3 @@ def viewLog(mode, msg=None):
         print()
         app.logger.info(msg)
         print()
-       
-    '''
-    if mode is "message":
-        app.logger.info("[message] user_key : {}, type : {}, content : {}".format(
-            data["user_key"],
-            data["type"],
-            data["content"]))
-    
-    elif mode is "add":
-        app.logger.info("[join] user_key : {}".format(data["user_key"]))
-    elif mode is "block":
-        app.logger.info("[block] user_key : {}".format(data))
-    elif mode is "exit":
-        app.logger.info("[exit] user_key : {}".format(data))
-    '''
-'''
-logger.setLevel(logging.DEBUG)
-logger.debug("===========================")
-logger.info("TEST START")
-logger.warning("스트림으로 로그가 남아요~")
-logger.error("파일로도 남으니 안심이죠~!")
-logger.critical("치명적인 버그는 꼭 파일로 남기기도 하고 메일로 발송하세요!")
-logger.debug("===========================")
-'''
