@@ -1,13 +1,5 @@
-from server import app
+from server import app, serverStart
 
-app.run(host="0.0.0.0", port=209)
-
-
-
-
-
-
-
-
-
- 
+if __name__ == '__main__':
+    serverStart()
+#app.run(host="0.0.0.0", port=209)
