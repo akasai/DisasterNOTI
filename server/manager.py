@@ -1,6 +1,7 @@
 from server import db, model
 from .message import CompMessage, FailMessage
 
+#Singleton class
 class SingletonType(type):
     def __call__(_cls, *args, **kwargs):
         try:
@@ -9,6 +10,7 @@ class SingletonType(type):
             _cls.__instance = super(SingletonType, _cls).__call__(*args, **kwargs)
             return _cls.__instance
 
+#API Admin
 class APIController(metaclass=SingletonType):
     def process(self, _type, *_data):
         if _type == "home":

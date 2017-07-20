@@ -1,14 +1,17 @@
 import MySQLdb
 from flask import Flask
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from time import ctime
 from multiprocessing import Process
-from .config import DB_Config
+from .config import DB_Config, Detect_Config
 
 #Flask initialize
 app = Flask(__name__)
-CORS(app)
 app.config.from_object(config.DevConfig)
+app.secret_key = "secret"
+CORS(app)
+socketio = SocketIO(app)
 
 #ErrorModule import
 from server import errLog
@@ -16,32 +19,29 @@ errLog.setLogger(app,10)
 
 #DB Connect & model initialize
 try:
-    db = MySQLdb.connect(**DB_Config.db_config)
-    
-    errLog.viewLog("info", "{0} Connected".format(db))
+    db = MySQLdb.connect(**DB_Config.db_config)    
+    errLog.viewLog("info", "{0} Connected.".format(db))
 except BaseException as b:
     errLog.viewLog("critical", b)
 finally:
     from server import view
+    from detect import Detect, twitDetect
 
- 
-from detect import Init, twitDetect
+#m  = Detect(**CONFIG3)
+#c  = Detect(**CONFIG2)
 
-
-#server Initialize -> log 남기기
+#server Initialize
 def serverStart():
     msg  = "********************************************************************\n"
     msg += "*                                                                  *\n"
-    msg += "*                                                                  *\n"
-    msg += "*                                                                  *\n"
     msg += "*          PyThOn SeRvEr StArT "+ctime()+"            *\n"
     msg += "*                                                                  *\n"
-    msg += "*                                                                  *\n"
-    msg += "*                                                                  *\n"
     msg += "********************************************************************\n"
-    print(msg)
-    #app.run(host='0.0.0.0', debug = False, port=209, threaded=True)
-    #socketio.run(app, host='0.0.0.0', port=209)
-    #Process(targ et = socketio.run(app, host='0.0.0.0', port=209), name = 'ServertProcess', threaded=True).start()
-    Process(target = app.run(host='0.0.0.0', port=209), name = 'ServertProcess', threaded=True).start()
-    
+   
+    try:
+        print(msg)
+        errLog.viewLog("info", "{0} Start.".format(app))
+        Process(target=socketio.run(app, host='0.0.0.0', port=209), name='ServerProcess', threaded=True).start()
+    except BaseException as e:
+        print(e)
+        errLog.viewLog("critical", "{0} Start Failed. : {1}".format(app, e))

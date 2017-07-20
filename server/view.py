@@ -2,9 +2,9 @@ from server import app, errLog
 from Tool.CommonTool import ENC, setRespJson
 from .manager import APIC
 
-from flask import request, render_template, abort
+from flask import request, render_template, abort, redirect
 from multiprocessing import Process, current_process, Queue
-from time import localtime, strftime, ctime # , strptime, sleep
+from time import localtime, strftime, ctime
 
 def error(_statusCode, _msg, _ip=None):
     errLog.viewLog("warning", "[{0}]{1} : {2}".format(_statusCode,_msg,_ip))
@@ -61,6 +61,7 @@ def pulse():
         else:
             try:
                 done_queue = Queue()
+                setRespJson(uri, done_queue)
                 module_proc = Process(target=setRespJson(uri, done_queue), name='Pulse-Process'+strftime('%m%d%H%M%S', localtime()))
                 module_proc.start()
                 print("\n\t[{0}]\n\t* PulseData Call - [{1}]\n\t[{2}]\n".format(ctime(), key, module_proc.name))
