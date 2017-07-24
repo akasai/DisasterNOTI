@@ -1,5 +1,11 @@
-from server import app, serverStart
+import multiprocessing
+from server import Server
+from errLog import ErrCon
 
-if __name__ == '__main__':
-    serverStart()
-#app.run(host="0.0.0.0", port=209)
+if __name__ == "__main__":
+    multiprocessing.log_to_stderr()
+    ErrCon.setProcessLogger(multiprocessing.get_logger(), 10)
+
+    main_proc = Server()
+    main_proc.start()
+    

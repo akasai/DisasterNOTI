@@ -22,4 +22,4 @@ class CompMessage(Message):
         if str(_obj) == SuccessMessage().getMessage():
            self.returnBool = True
         elif str(_obj) == FailMessage().getMessage():
-            self.returnBool = False
+           self.returnBool = False

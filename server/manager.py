@@ -1,5 +1,4 @@
-from server import db, model
-from .message import CompMessage, FailMessage
+from dbConnect import db, model, message
 
 #Singleton class
 class SingletonType(type):
@@ -17,10 +16,10 @@ class APIController(metaclass=SingletonType):
             return_key = str(DBC.selectToken(*_data))
             return return_key
         elif _type == "auth":
-            if CompMessage(DBC.insertToken(*_data)).getBool():
+            if message.CompMessage(DBC.insertToken(*_data)).getBool():
                 DBC.commit()
         elif _type == "valid":
-            return CompMessage(DBC.selectValid(*_data)).getBool()
+            return message.CompMessage(DBC.selectValid(*_data)).getBool()
 
 #### 아래부터 수정중 DBconnection
 class DBController(metaclass=SingletonType):
@@ -38,7 +37,7 @@ class DBController(metaclass=SingletonType):
     def commit(self):
         db.commit()
     
-        '''
+'''
     def addUser(self, user_key):
         u = self.query(User, user_key)
         if u is None:

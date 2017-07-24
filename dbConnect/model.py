@@ -1,4 +1,4 @@
-from server import errLog
+from errLog import ErrCon
 from .message import SuccessMessage, FailMessage
 
 class tokenSelect:
