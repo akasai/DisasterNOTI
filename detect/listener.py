@@ -1,10 +1,11 @@
-import json
+from errLog import ErrCon
 
-from time import strftime, strptime, ctime, time
+from .Tool import *
+
+import json
+from time import strptime, ctime, time
 from datetime import datetime, timedelta
 from tweepy.streaming import StreamListener
-
-from .Tool import setInitial, checktwitCount, setCounting, isOneMin, resetCount
 
 class Listener(StreamListener):
     def __init__(self, _title, _process, _format, _keywordDic, _sock):
@@ -18,7 +19,8 @@ class Listener(StreamListener):
         self.counting = setInitial(self.keywordDic)
 
     def on_connect(self):
-        print("[{0}]{1} \t- Detecting Start ".format(ctime(),self.title))
+        ErrCon.viewLog("info","{0} - Detecting Start.".format(self.title))
+        #print("[{0}]{1} \t- Detecting Start ".format(ctime(),self.title))
     
     def on_data(self, raw_data):
         data = json.loads(raw_data)
@@ -44,7 +46,9 @@ class Listener(StreamListener):
         try:
             pass
         except ConnectionAbortedError as c:
-            print("[{0}]{1} \t- Detecting Stoped \t{2}".format(ctime(), self.title, c))
+            ErrCon.viewLog("info","{0} - Detecting Stoped. : {1}".format(self.title, c))
+            #print("[{0}]{1} \t- Detecting Stoped \t{2}".format(ctime(), self.title, c))
 
     def on_error(self, _status):
-        print(_status)
+        ErrCon.viewLog("error","Twitter Detecting Error. : {0}".format(_status))
+        #print(_status)

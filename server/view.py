@@ -5,9 +5,8 @@ from .manager import APIC
 from .pulse import Pulse
 
 from flask import request, render_template, abort, redirect
-from time import localtime, strftime, ctime
-from multiprocessing import Process, current_process, Queue
-
+from time import localtime, strftime, ctime, sleep
+from multiprocessing import Queue
 
 def error(_statusCode, _msg, _ip=None):
     ErrCon.viewLog("warning", "[{0}]{1} : {2}".format(_statusCode, _msg, _ip))
@@ -60,27 +59,18 @@ def pulse():
         
         if len(uri) < 10:
             return error(412, "Wrong URL", userIP)
-        #프로세스 로직이 꼬인듯?
         else:
             try:
                 done_queue = Queue()
-                #setRespJson(uri, done_queue)
-                pulse_proc = Pulse(uri, done_queue)
+                pulse_proc = Pulse(uri, done_queue, key)
                 pulse_proc.start()
-                #module_proc = Process(target=setRespJson(uri, done_queue), name='Pulse-Process'+strftime('%m%d%H%M%S', localtime()))
-                #module_proc.start()
-                print("\n\t[{0}]\n\t* PulseData Call - [{1}]\n\t[{2}]\n".format(ctime(), key, module_proc.name))
-                ErrCon.viewLog("info", "PulseData Call : {0}".format(userIP))
                 resp = done_queue.get()
             except BaseException as e:
-                print(e)
-                return error(412, "Wrong URL", userIP)
+                return error(412, "Wrong URL : {0}".format(e), userIP)
             finally:
-                print("\n\t[{0}]\n\t* PulseData Success Return\n\t[{1} Close]\n".format(ctime(), module_proc.name))
-                errLog.viewLog("info", "PulseData Return : {0}".format(userIP))
                 done_queue.close()
                 done_queue.join_thread()
-                module_proc.join()
+                pulse_proc.join()
                 return resp
     else:
         return error(401,'Check Your Authorization Key', userIP)

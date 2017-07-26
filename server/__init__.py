@@ -7,17 +7,16 @@ from flask_socketio import SocketIO
 from multiprocessing import Process
 from time import ctime
 
-try:
-    app = Flask(__name__)
-    app.config.from_object(DevConfig)
-    app.secret_key = "secret"
-    CORS(app)
-    socketio = SocketIO(app)
-finally:
-    from server import view
-    #ErrorModule import
-    from errLog import ErrCon
-    ErrCon.setLogger(app,10)
+app = Flask(__name__)
+app.config.from_object(DevConfig)
+app.secret_key = "secret"
+CORS(app)
+socketio = SocketIO(app)
+
+from server import view
+#ErrorModule import
+from errLog import ErrCon
+ErrCon.setLogger(10)
     
 class Server(Process):
     def __init__(self):
@@ -26,13 +25,12 @@ class Server(Process):
     #Flask initialize
     def run(self):
         from dbConnect import db
-        multiprocessing.log_to_stderr()
+        #multiprocessing.log_to_stderr()
         ErrCon.setProcessLogger(multiprocessing.get_logger(), 10)
         try:
             self.welcomeMSG()
             socketio.run(app, host="0.0.0.0", port=209)    
-        except BaseException as e:
-            print(e)
+        except Exception as e:
             ErrCon.viewLog("critical", "{0} Start Failed. : {1}".format(app, e))
     
     #server Initialize    

@@ -19,5 +19,6 @@ def webDetect(_minFormat, _config, _title, _url):
                 lastest_num += 1
         
         print("[{0}] {1}-{2}\t{3} ".format(ctime(), curProcss, _title, checkCount(lastest_num, _title, "지진")))
-    except ConnectionAbortedError as c:
-        print("[{0}]{1} \t- Detecting Stoped \t{2}".format(ctime(), _title, c))
+    except BaseException as e:
+        ErrCon.viewLog("error", "{0} - WebDetecting Stoped. : {1}".format(_title, e))
+        #print("[{0}]{1} \t- Detecting Stoped \t{2}".format(ctime(), _title, e))

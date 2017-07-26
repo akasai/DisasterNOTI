@@ -1,14 +1,9 @@
 from server import app
+
+import logging
+from .config import format_Config
 from logging.handlers import RotatingFileHandler
 from logging import Formatter
-
-fileMaxByte = 1024 * 1024 * 100 #100MB
-fomatter = Formatter('[%(asctime)19s] [%(levelname)8s] [%(processName)12s] - %(message)s')#추후 변경
-
-fileHandler = RotatingFileHandler('./log/serverLog.log', maxBytes=fileMaxByte, backupCount=10, encoding="utf-8")
-fileHandler.setFormatter(fomatter)
-processfileHandler = RotatingFileHandler('./log/processLog.log', maxBytes=fileMaxByte, backupCount=10, encoding="utf-8")
-processfileHandler.setFormatter(fomatter)
 
 #Singleton class
 class SingletonType(type):
@@ -19,13 +14,46 @@ class SingletonType(type):
             _cls.__instance = super(SingletonType, _cls).__call__(*args, **kwargs)
             return _cls.__instance
 
-class ErrLog(metaclass=SingletonType):
+class ErrLog(object):
+    __metaclass__ = SingletonType
+    _logger = None
+    _plogger = None
+    def __init__(self):
+        self._logger = logging.getLogger("testlogger")
+        self._plogger = logging.getLogger("testlogger2")
+        
+        self._logger.setLevel(10)
+        self._plogger.setLevel(10)
+
+        fileHandler = logging.FileHandler(**format_Config.serverLog)
+        fileHandler.setFormatter(Formatter(format_Config.server_format))
+
+        self._logger.addHandler(fileHandler)
+        self._plogger.addHandler(fileHandler)
+
+        #self.fileHandler = RotatingFileHandler(**format_Config.serverLog)
+        #self.fileHandler.setFormatter(Formatter(format_Config.server_format))
+        #self.detectHandler = RotatingFileHandler(**format_Config.detectLog)
+        #self.detectHandler.setFormatter(Formatter(format_Config.detect_format))
+        #self.processfileHandler = RotatingFileHandler(**format_Config.procLog)
+        #self.processfileHandler.setFormatter(Formatter(format_Config.proc_format))
+        
+
+        #app.logger.addHandler(self.fileHandler)
+        #app.logger.handlers[0].setFormatter(Formatter(format_Config.stream_format))
+        #app.logger.handlers[1].setFormatter(Formatter(format_Config.stream_format))   
+        
     def setProcessLogger(self,_logger, level):
         logger =_logger
         logger.setLevel(level)
-        logger.addHandler(processfileHandler)
-
-    def setLogger(self, app, level):
+        logger.addHandler(self.processfileHandler)
+    
+    def setDetectLogger(self,_logger, level):
+        logger =_logger
+        logger.setLevel(level)
+        logger.addHandler(self.processfileHandler)
+         
+    def setLogger(self, level):
         '''
         Level	    Numeric value
         CRITICAL	50
@@ -35,10 +63,14 @@ class ErrLog(metaclass=SingletonType):
         DEBUG	    10
         NOTSET	    0
         '''
-        app.logger.addHandler(fileHandler)
-        app.logger.handlers[0].setFormatter(fomatter)
         app.logger.setLevel(level)
     
+    def getLogger(self):
+        return self._logger
+
+    def getPLogger(self):
+        return self._logger
+
     def viewLog(self, mode, msg=None):
         '''
         전달 mode에 따라 logging.
@@ -48,18 +80,10 @@ class ErrLog(metaclass=SingletonType):
         info : 서버운영 알림
         ''' 
         if mode is "critical":
-            print()
             app.logger.critical(msg)
-            print()
         elif mode is "error":
-            print()
             app.logger.warning(msg)
-            print()
         elif mode is "warning":
-            print()
             app.logger.warning(msg)
-            print()
         elif mode is "info":
-            print()
             app.logger.info(msg)
-            print()

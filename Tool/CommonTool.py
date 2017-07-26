@@ -26,7 +26,7 @@ class Tool():
             data = {"time":int(timestamp),"value":str(a[2])}
             result.append(data)
     
-        sortedResult = sorted(result, key=getTime, reverse=False)
+        sortedResult = sorted(result, key=self.getTime, reverse=False)
         _output.put(json.dumps(sortedResult))
 
     def getTime(self, _n):
