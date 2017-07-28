@@ -1,10 +1,17 @@
 import requests
 import json
 
-from errLog import ErrCon
+from aloneServer.util import errLog
+from flask import abort
 from re import sub, compile
 from hashlib import md5
 from time import time, ctime
+
+logger = errLog.ErrorLog.__call__()
+
+def HTTPError(_statusCode, _msg, _ip=None):
+    logger.writeLog("warning", "[{0}]{1} : {2}".format(_statusCode, _msg, _ip))
+    return abort(_statusCode, 'Access Denied. '+str(_msg))
 
 class Tool():
     def setRespJson(self, _uri, _output):
@@ -14,7 +21,7 @@ class Tool():
         s = str(source['rtn_result'])
 
         if s == None:
-            ErrCon.viewLog("info", 'No Data')
+            logger.writeLog("info", 'No Data')
             return False
     
         plain_text = s.split('||')

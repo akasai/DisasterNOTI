@@ -1,3 +1,3 @@
-#from aloneServer.util import errLog
+from aloneServer.util import tool
 
-#Logger = errLog.ErrorLog.__call__()
+ENC = tool.Encrypt()

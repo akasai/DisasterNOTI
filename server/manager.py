@@ -2,12 +2,11 @@ from dbConnect import db, model, message
 
 #Singleton class
 class SingletonType(type):
-    def __call__(_cls, *args, **kwargs):
-        try:
-            return _cls.__intsance
-        except AttributeError:
-            _cls.__instance = super(SingletonType, _cls).__call__(*args, **kwargs)
-            return _cls.__instance
+    _instance = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instance:
+            cls._instance[cls] = super(SingletonType , cls).__call__(*args, **kwargs)
+        return cls._instance[cls]
 
 #API Admin
 class APIController(metaclass=SingletonType):
@@ -69,5 +68,7 @@ class DBController(metaclass=SingletonType):
         db.session.commit()
 
 '''
-APIC = APIController()
-DBC = DBController()
+APIC = APIController.__call__()
+DBC = DBController.__call__()
+
+prrin(APIC)

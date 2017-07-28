@@ -10,16 +10,6 @@ class TestConfig(BaseConfig):
     DEBUG=False
     TESTING=True
 
-class DB_Config:
-    db_config = {
-        'host':'192.168.0.128',
-        'port':3306,
-        'user':'root',
-        'passwd':'1111',
-        'db':'test',
-        'charset':'utf8'
-    }
-
 class Detect_Config:
     webConfig_1 = {
         '_title':'지진희갤러리',
