@@ -24,10 +24,15 @@ class DBConnect(metaclass=Single):
             logger.writeLog("info","DB Connected. : {0}".format(self._DB))
     
     def setCursor(self, _cursor):
-        self._Cursor = _cursor
+        if self._Cursor == None:
+            self._Cursor = _cursor
 
     def getDB(self):
         return self._DB
 
     def getCursor(self):
-        return self._Cursor
+        if self._Cursor == None:
+            self._Cursor = self._DB.cursor()
+            return self._Cursor
+        else:
+            return self._Cursor

@@ -9,6 +9,7 @@ class tokenSelect:
     def __init__(self, _ip="%"):
         self.query = "select ip, AES_DECRYPT(UNHEX(accessKey), 'acorn') from tb_access_auth where ip like '"+_ip+"';"
         self.cur = db.getCursor()
+        
         try:
             self.cur.execute(self.query)
             self.isEmpty(self.cur.fetchone())
@@ -48,7 +49,7 @@ class ValidSelect:
     def __init__(self, _accessKey):
         self.query = "select * from tb_access_auth where accessKey = HEX(AES_ENCRYPT('"+_accessKey+"','acorn'));"
         self.cur = db.getCursor()
-
+        
         try:
             self.cur.execute(self.query)
             self.isEmpty(self.cur.fetchone())
@@ -60,6 +61,24 @@ class ValidSelect:
             self.returnMsg = SuccessMessage().getMessage()
         else:       #값이 없으면
             self.returnMsg = FailMessage().getMessage()
+
+    def __repr__(self):
+        return self.returnMsg
+
+class NoticeInsert:
+    def __init__(self, _key, _content, _percentage):
+        self.query = "insert into tb_notice(time, value, route, content, percentage) values (sysdate(), '"+_key+"', 'Twitter', '"+_content+"', "+_percentage+");"
+        self.cur = db.getCursor()
+        
+        try:
+            self.cur.execute(self.query)
+            self.returnMsg = SuccessMessage().getMessage()
+        except BaseException as e:
+            logger.writeLog("error", "Notice Insert Error. : {0}".format(e))
+            self.returnMsg = FailMessage().getMessage()
+        else:
+            logger.writeLog("info", "Notice Commit Success.")
+            db.getDB().commit()
 
     def __repr__(self):
         return self.returnMsg

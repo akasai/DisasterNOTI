@@ -1,24 +1,22 @@
-from time import time, strptime, strptime
+from time import time, strptime, strftime, ctime
+
 
 def checktwitCount(_sock, _count, _key, _tmptime):
-    #db = MySQLdb.connect(host=dbServer ,port=port,user="root",passwd="1111",db="test", charset='utf8')
-    #cursor = db.cursor()
+    from aloneServer.manager import APIC
     percentage = (_count / 10) * 100
+    print("twit", _sock)
     try:
         if percentage > 0:#수치조정 필요
             content = "발생 추정 : {0}".format(_count)
-            #query = "insert into tb_notice(time, value, route, content, percentage) values (sysdate(), '"+_key+"', 'Twiiter', '"+content+"', "+str(int(percentage))+");"
-            #cursor.execute(query)
-            #_sock.emit("notification", {"message":content,"type":_key,"time":strftime("%Y/%m/%d %a %H:%M:%S", strptime(ctime(_tmptime)))}, broadcast=True)
+            APIC.process("notice", _key, content, str(int(percentage)))
+            _sock.emit("notification", {"message":content,"type":_key,"time":strftime("%Y/%m/%d %a %H:%M:%S", strptime(ctime(_tmptime)))}, broadcast=True)
         elif percentage == 0:
             content = "안전 상태 : {0}".format(_count)
         else:
             content = "발생 가능성 ["+str(percentage)+"%] : {0}".format(_count)
     except Exception as e:
         print(e)
-    finally:
-        #db.commit()
-        #db.close()
+    else:
         return content
     
 def isOneMin(_time):

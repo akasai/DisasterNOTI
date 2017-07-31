@@ -27,6 +27,6 @@ class format_Config:
 
     stream_format  = '[         Time ] ==> %(asctime)s\n'
     stream_format += '[ Notice_Level ] ==> %(levelname)s\n'
-    stream_format += '[ Process_Name ] ==> %(processName)s\n'
+    stream_format += '[ Process_Name ] ==> %(processName)s : %(process)d\n'
     stream_format += '[    File_Name ] ==> %(filename)s:%(lineno)s\n'
     stream_format += '[      Message ] ==> %(message)s\n'

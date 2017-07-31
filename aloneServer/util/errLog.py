@@ -59,7 +59,7 @@ class ErrorLog(metaclass=SingletonType):
         if mode is "critical":
             self._logger.critical(msg)
         elif mode is "error":
-            self._logger.warning(msg)
+            self._logger.error(msg)
         elif mode is "warning":
             self._logger.warning(msg)
         elif mode is "info":
