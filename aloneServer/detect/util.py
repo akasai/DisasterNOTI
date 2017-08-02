@@ -1,14 +1,12 @@
 from time import time, strptime, strftime, ctime
 
-
 def checktwitCount(_sock, _count, _key, _tmptime):
     from aloneServer.manager import APIC
     percentage = (_count / 10) * 100
-    print("twit", _sock)
     try:
         if percentage > 0:#수치조정 필요
             content = "발생 추정 : {0}".format(_count)
-            APIC.process("notice", _key, content, str(int(percentage)))
+            APIC.process("notice", _key, "twitter", content, str(int(percentage)))
             _sock.emit("notification", {"message":content,"type":_key,"time":strftime("%Y/%m/%d %a %H:%M:%S", strptime(ctime(_tmptime)))}, broadcast=True)
         elif percentage == 0:
             content = "안전 상태 : {0}".format(_count)
@@ -56,22 +54,18 @@ def _get_article_Time(_itemTag, _config, _format):
                 pass
             
 def checkCount(_count, _route, _key):
-    #b = MySQLdb.connect(host=dbServer ,port=port,user="root",passwd="1111",db="test", charset='utf8')
-    #cursor = db.cursor()
+    from aloneServer.manager import APIC
     percentage = (_count / 10) * 100
     try:
         if percentage > 20:#수치조정 필요
             content = "발생 추정"
-            #query = "insert into tb_notice(time, value, route, content, percentage) values (sysdate(), '"+_key+"', '"+_route+"', '"+content+"', "+str(int(percentage))+");"
-            #cursor.execute(query)
-            #self.sockio.emit("notification", {"message":content,"type":_key,"time":strftime("%Y/%m/%d %a %H:%M:%S", strptime(ctime(self.tmp_time)))}, broadcast=True)
+            APIC.process("notice", _key, "Web", content, str(int(percentage)))
+            #_sock.emit("notification", {"message":content,"type":_key,"time":strftime("%Y/%m/%d %a %H:%M:%S", strptime(ctime(self.tmp_time)))}, broadcast=True)
         elif percentage == 0:
             content = "안전 상태"
         else:
             content = "발생 가능성 ["+str(percentage)+"%]"
     except Exception as e:
         print(e)
-    finally:
-        #db.commit()
-        #db.close()
+    else:
         return content

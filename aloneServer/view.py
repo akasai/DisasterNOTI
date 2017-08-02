@@ -9,8 +9,9 @@ logger = errLog.ErrorLog.__call__()
 
 @app.route('/', methods=["GET"])
 def index():
+    from aloneServer import socketio
     from aloneServer.manager import APIC
-    
+    print(socketio)
     if request.method == 'GET':
         key = request.args.get('Key')
         uri = request.args.get('URI')
@@ -75,3 +76,31 @@ def pulse():
                 return resp
     else:
         return tool.HTTPError(401,'Check Your Authorization Key', userIP)
+
+@app.route('/twit', methods=['GET'])
+def twit():
+    from aloneServer import socketio, jobs
+    
+    if jobs['twit']:
+        return tool.HTTPError(423, 'Already Detecting.')
+    else: #첫 접근
+        from aloneServer.detect import twitDetect, config
+        proc = twitDetect.TwitDetect(**config.Detect_Config.twitConfig, _sock = socketio)
+        jobs['twit'] = proc
+        proc.start()
+    
+    return "Twiter Detecting Start"
+
+@app.route('/web', methods=['GET'])
+def web():
+    from aloneServer import socketio, jobs
+    
+    if jobs['web']:
+        return tool.HTTPError(423, 'Already Detecting.')
+    else: #첫 접근
+        from aloneServer.detect import webDetect, config
+        proc = webDetect.WebDetect(**config.Detect_Config.webConfig_2)
+        jobs['web'] = proc
+        proc.start()
+    
+    return "Web Detecting Start"

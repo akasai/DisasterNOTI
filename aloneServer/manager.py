@@ -34,7 +34,7 @@ class DBController(metaclass=SingletonType):
         return model.ValidSelect(_args[0])
 
     def noticeInsert(self, *_args):
-        return model.NoticeInsert(_args[0], _args[1], _args[2])
+        return model.NoticeInsert(_args[0], _args[1], _args[2], _args[3])
 
 APIC = APIController.__call__()
 DBC = DBController.__call__()

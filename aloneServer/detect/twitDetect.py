@@ -11,33 +11,33 @@ from tweepy.streaming import StreamListener
 logger = errLog.ErrorLog.__call__()
 
 class TwitDetect(Process):
-    def __init__(self, _title, _url, _config, _format):
+    def __init__(self, _title, _url, _config, _format, _sock):
         Process.__init__(self)
         self.title = _title
         self.url = _url
         self.CONFIG = _config
         self.min_format = _format
-    
-    def run(self):
-        from aloneServer import socketio
-        print(socketio)
-        curProcss = current_process().name
+
+        self.curProcss = current_process().name
         keyword = []
 
         for value in config.Keyward.keywordDic.values():
             for k in value:
                 keyword.append(k) 
+
         auth = OAuthHandler(config.Key_Config.consumerKey, config.Key_Config.consumerSecret)
         auth.set_access_token(config.Key_Config.accessToken, config.Key_Config.accessTokenSecret)
         api = API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True, retry_count=10, retry_delay=5, retry_errors=5)
 
-        l = Listener(self.title, curProcss, self.min_format, config.Keyward.keywordDic, socketio)
-    
+        l = Listener(self.title, self.curProcss, self.min_format, config.Keyward.keywordDic, _sock)
         try: 
             twitterStream = Stream(api.auth, l)
-            twitterStream.filter(track=keyword, async=True)
+            twitterStream.filter(track=keyword, async=True)    
         except BaseException as e:
-            ErrCon.viewLog("error","{0} : Twitter Stream Error".format(e))
+            logger.writeLog("error","{0} : Twitter Stream Error".format(e))
+
+    def run(self):
+        pass
 
 class Listener(StreamListener):
     def __init__(self, _title, _process, _format, _keywordDic, _sock):

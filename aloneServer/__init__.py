@@ -22,6 +22,9 @@ app.config.from_object(BaseConfig)
 app.secret_key = "secret"
 CORS(app)
 socketio = SocketIO(app)
+jobs = dict()
+jobs['twit'] = False
+jobs['web'] = False
 
 class Server(Process):
     from aloneServer import view
@@ -38,7 +41,6 @@ class Server(Process):
         db.setCursor(db.getDB().cursor())
         
         try:
-            print("run", socketio)
             socketio.run(app, host="0.0.0.0", port=209)
         except BaseException as s:
             logger.writeLog("critical", "{0} Start Failed. : {1}".format(app, s))

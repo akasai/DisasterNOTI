@@ -66,7 +66,7 @@ class ValidSelect:
         return self.returnMsg
 
 class NoticeInsert:
-    def __init__(self, _key, _content, _percentage):
+    def __init__(self, _key, _title, _content, _percentage):
         self.query = "insert into tb_notice(time, value, route, content, percentage) values (sysdate(), '"+_key+"', 'Twitter', '"+_content+"', "+_percentage+");"
         self.cur = db.getCursor()
         
