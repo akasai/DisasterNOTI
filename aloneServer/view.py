@@ -11,7 +11,7 @@ logger = errLog.ErrorLog.__call__()
 def index():
     from aloneServer import socketio
     from aloneServer.manager import APIC
-    print(socketio)
+    
     if request.method == 'GET':
         key = request.args.get('Key')
         uri = request.args.get('URI')
@@ -96,15 +96,16 @@ def admin():
 def twit():
     from aloneServer.manager import APIC
     userIP = request.remote_addr
-    key = request.form['Key']
-    if len(key) is 0:
-        return tool.HTTPError(401,'Check Your Authorization Key',userIP)
-
-    if not APIC.process("admin", key):
-        return tool.HTTPError(403, 'Unauthorized Access!', key)
-
+    
     if request.method == 'POST':
-        #key권한 확인
+        key = request.form['Key']
+
+        if len(key) is 0:
+            return tool.HTTPError(401,'Check Your Authorization Key',userIP)
+
+        if not APIC.process("admin", key):
+            return tool.HTTPError(403, 'Unauthorized Access!', key)
+
         from aloneServer import socketio, jobs
     
         if jobs['twit']:
@@ -116,21 +117,23 @@ def twit():
             proc.start()
         
         return "Twiter Detecting...."
-    else:
+    elif request.method == 'GET':
         return tool.HTTPError(403,'Wrong Access', userIP)
 
 @app.route('/web', methods=['GET','POST'])
 def web():
     from aloneServer.manager import APIC
     userIP = request.remote_addr
-    key = request.form['Key']
-    if len(key) is 0:
-        return tool.HTTPError(401,'Check Your Authorization Key',userIP)
-    
-    if not APIC.process("admin", key):
-        return tool.HTTPError(403, 'Unauthorized Access!', key)
 
     if request.method == 'POST':
+        key = request.form['Key']
+
+        if len(key) is 0:
+            return tool.HTTPError(401,'Check Your Authorization Key',userIP)
+    
+        if not APIC.process("admin", key):
+            return tool.HTTPError(403, 'Unauthorized Access!', key)
+
         from aloneServer import socketio, jobs
     
         if jobs['web']:
@@ -142,5 +145,5 @@ def web():
             proc.start()
     
         return "Web Detecting...."
-    else:
+    elif request.method == 'GET':
         return tool.HTTPError(403,'Wrong Access', userIP)
