@@ -1,9 +1,9 @@
 class DB_Config:
     db_config = {
-        'host':'192.168.0.128',
-        'port':3306,
-        'user':'root',
-        'passwd':'1111',
-        'db':'test',
+        'host':'[DB IP]',
+        'port':[DB PORT],
+        'user':'[DB ID]',
+        'passwd':'[DB PW]',
+        'db':'[DB NAME]',
         'charset':'utf8'
     }
