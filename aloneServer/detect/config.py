@@ -17,10 +17,10 @@ class Keyward:
         }
     }
 class Key_Config:
-    consumerKey = '445nwUvOWpIfbEAknkSnWW5Bs'
-    consumerSecret = 'jwlX9XxGIXvyZhjquZ8U6JG2yixNhk8btcVW79dMn7mjv5kZgV'
-    accessToken = '196210683-AdFNkBpeizJG9dlY1B6uuAjzaTrm23IDz71J1lPV'
-    accessTokenSecret = 'K8l25sm1QPoxw2T7ow3raSOWNy3R9AasJCELYgnGqfXtk'
+    consumerKey = '[own_key]'
+    consumerSecret = '[own_key]'
+    accessToken = '[own_key]'
+    accessTokenSecret = '[own_key]'
     
 class Detect_Config:
     webConfig_1 = {
