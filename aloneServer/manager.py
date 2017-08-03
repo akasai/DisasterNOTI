@@ -19,6 +19,8 @@ class APIController(metaclass=SingletonType):
             return message.CompMessage(DBC.insertToken(*_data)).getBool()
         elif _type == "valid":
             return message.CompMessage(DBC.selectValid(*_data)).getBool()
+        elif _type == "admin":
+            return message.CompMessage(DBC.adminValid(*_data)).getBool()
         elif _type == "notice":
             return message.CompMessage(DBC.noticeInsert(*_data)).getBool()
 
@@ -32,6 +34,9 @@ class DBController(metaclass=SingletonType):
     
     def selectValid(self, *_args):
         return model.ValidSelect(_args[0])
+
+    def adminValid(self, *_args):
+        return model.AdminSelect(_args[0])
 
     def noticeInsert(self, *_args):
         return model.NoticeInsert(_args[0], _args[1], _args[2], _args[3])

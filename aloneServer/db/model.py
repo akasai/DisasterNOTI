@@ -65,6 +65,28 @@ class ValidSelect:
     def __repr__(self):
         return self.returnMsg
 
+class AdminSelect:
+    def __init__(self, _accessKey):
+        self.query = "select server_auth from tb_access_auth where accessKey = HEX(AES_ENCRYPT('"+_accessKey+"','acorn'));"
+        self.cur = db.getCursor()
+        
+        try:
+            self.cur.execute(self.query)
+            self.isEmpty(self.cur.fetchone())
+        except BaseException as e:
+            logger.writeLog("error", "Admin Select Failed. : {0}".format(e))
+        
+    def isEmpty(self, _row):
+        
+        if _row[0] is 1:    #값이 있으면
+            self.returnMsg = SuccessMessage().getMessage()
+        else:       #값이 없으면
+            self.returnMsg = FailMessage().getMessage()
+
+    def __repr__(self):
+        return self.returnMsg
+
+
 class NoticeInsert:
     def __init__(self, _key, _title, _content, _percentage):
         self.query = "insert into tb_notice(time, value, route, content, percentage) values (sysdate(), '"+_key+"', 'Twitter', '"+_content+"', "+_percentage+");"

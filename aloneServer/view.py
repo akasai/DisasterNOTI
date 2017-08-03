@@ -77,30 +77,70 @@ def pulse():
     else:
         return tool.HTTPError(401,'Check Your Authorization Key', userIP)
 
-@app.route('/twit', methods=['GET'])
-def twit():
-    from aloneServer import socketio, jobs
-    
-    if jobs['twit']:
-        return tool.HTTPError(423, 'Already Detecting.')
-    else: #첫 접근
-        from aloneServer.detect import twitDetect, config
-        proc = twitDetect.TwitDetect(**config.Detect_Config.twitConfig, _sock = socketio)
-        jobs['twit'] = proc
-        proc.start()
-    
-    return "Twiter Detecting Start"
+@app.route('/admin', methods=['GET'])
+def admin():
+    from aloneServer import jobs
+    twit = "Ready"
+    web = "Ready"
 
-@app.route('/web', methods=['GET'])
+    if len(jobs) is not 0:
+        if jobs['twit']:
+            twit = "Twiter Detecting...."
+
+        if jobs['web']:
+            web = "Web Detecting...."
+
+    return render_template("admin.html", twit=twit, web=web)
+
+@app.route('/twit', methods=['GET', 'POST'])
+def twit():
+    from aloneServer.manager import APIC
+    userIP = request.remote_addr
+    key = request.form['Key']
+    if len(key) is 0:
+        return tool.HTTPError(401,'Check Your Authorization Key',userIP)
+
+    if not APIC.process("admin", key):
+        return tool.HTTPError(403, 'Unauthorized Access!', key)
+
+    if request.method == 'POST':
+        #key권한 확인
+        from aloneServer import socketio, jobs
+    
+        if jobs['twit']:
+            return tool.HTTPError(423, 'Already Detecting.')
+        else: #첫 접근
+            from aloneServer.detect import twitDetect, config
+            proc = twitDetect.TwitDetect(**config.Detect_Config.twitConfig, _sock = socketio)
+            jobs['twit'] = proc
+            proc.start()
+        
+        return "Twiter Detecting...."
+    else:
+        return tool.HTTPError(403,'Wrong Access', userIP)
+
+@app.route('/web', methods=['GET','POST'])
 def web():
-    from aloneServer import socketio, jobs
+    from aloneServer.manager import APIC
+    userIP = request.remote_addr
+    key = request.form['Key']
+    if len(key) is 0:
+        return tool.HTTPError(401,'Check Your Authorization Key',userIP)
     
-    if jobs['web']:
-        return tool.HTTPError(423, 'Already Detecting.')
-    else: #첫 접근
-        from aloneServer.detect import webDetect, config
-        proc = webDetect.WebDetect(**config.Detect_Config.webConfig_2)
-        jobs['web'] = proc
-        proc.start()
+    if not APIC.process("admin", key):
+        return tool.HTTPError(403, 'Unauthorized Access!', key)
+
+    if request.method == 'POST':
+        from aloneServer import socketio, jobs
     
-    return "Web Detecting Start"
+        if jobs['web']:
+            return tool.HTTPError(423, 'Already Detecting.')
+        else: #첫 접근
+            from aloneServer.detect import webDetect, config
+            proc = webDetect.WebDetect(**config.Detect_Config.webConfig_2)
+            jobs['web'] = proc
+            proc.start()
+    
+        return "Web Detecting...."
+    else:
+        return tool.HTTPError(403,'Wrong Access', userIP)
