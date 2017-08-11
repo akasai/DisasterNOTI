@@ -25,6 +25,8 @@ socketio = SocketIO(app)
 jobs = dict()
 jobs['twit'] = False
 jobs['web'] = False
+jobs['key'] = False
+jobs['news'] = False
 
 class Server(Process):
     from aloneServer import view

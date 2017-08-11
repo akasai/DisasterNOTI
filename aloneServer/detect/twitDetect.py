@@ -65,6 +65,7 @@ class Listener(StreamListener):
             for i, k in enumerate(self.keywordDic.values()):
                 for value in k:
                     if value in data['text']:
+                        #print(data['text'])
                         setCounting(self.counting, i)
 
                 if isOneMin(self.tmp_time):

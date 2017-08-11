@@ -29,7 +29,7 @@ class tokenSelect:
 
 class tokenInsert:
     def __init__(self, _userIP, _encryptKey):
-        self.query = "insert into tb_access_auth values ('"+_userIP+"',HEX(AES_ENCRYPT('"+_encryptKey+"','acorn')),sysdate(),'on');"
+        self.query = "insert into tb_access_auth values ('"+_userIP+"',HEX(AES_ENCRYPT('"+_encryptKey+"','acorn')),sysdate(),'on',null);"
         self.cur = db.getCursor()
 
         try:

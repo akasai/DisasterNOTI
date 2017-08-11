@@ -69,3 +69,18 @@ def checkCount(_count, _route, _key):
         print(e)
     else:
         return content
+
+def checkKeyword(_config, _keylist):
+    for value in _config:
+        for k in value:
+            if k in _keylist:
+                print(k) 
+            else:
+                print("None")
+
+
+def isOccur(_ori, _cur):
+    gap = _ori - _cur
+
+    if gap > 10:
+        checkCount(gap, "", "뉴스")
