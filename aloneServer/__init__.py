@@ -15,7 +15,7 @@ from flask_socketio import SocketIO
 from multiprocessing import Process, Queue
 from time import ctime
 
-__version__ = '0.3.0'
+__version__ = '0.8.5'
 
 app = Flask(__name__)
 app.config.from_object(BaseConfig)
@@ -30,7 +30,6 @@ jobs['news'] = False
 
 class Server(Process):
     from aloneServer import view
-    sockid = None
 
     def __init__(self):
         Process.__init__(self)

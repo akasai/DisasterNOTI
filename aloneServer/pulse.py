@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    aloneServer
+    ~~~~~
+
+    Return Reassembled Pulse Data that made official by token
+    인증된 토큰을 통해 재조립된 Pulse Data를 Return.    
+    호출시 SubProcess 생성
+"""
 from aloneServer.util import tool, errLog
 from flask import request
 from multiprocessing import Process, current_process

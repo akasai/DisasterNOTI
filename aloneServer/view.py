@@ -1,11 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+    aloneServer
+    ~~~~~
+
+    View Controller
+    Flask서버의 전체적인 view 관리
+    a.k.a Servlet
+"""
 from aloneServer import app
 from aloneServer.pulse import Pulse
 from aloneServer.util import tool, errLog
 from aloneServer.util import ENC
-from flask import request, render_template, redirect
-from multiprocessing import Queue
+from flask import request, render_template, redirect, send_file
+from multiprocessing import Queue, Process
 
 logger = errLog.ErrorLog.__call__()
+q = Queue()
+keyword_q = Queue()
 """
     API서버 Index Page
     
@@ -150,7 +161,8 @@ def twit():
             return tool.HTTPError(423, 'Already Detecting.')
         else: #첫 접근
             from aloneServer.detect import twitDetect, config
-            proc = twitDetect.TwitDetect(**config.Detect_Config.twitConfig, _sock = socketio)
+            
+            proc = twitDetect.TwitDetect(**config.Detect_Config.twitConfig, _sock = socketio, _q = q, _kq = keyword_q)
             jobs['twit'] = proc
             proc.start()
         
@@ -218,14 +230,13 @@ def realKey():
             return tool.HTTPError(423, 'Already Detecting.')
         else: #첫 접근
             from aloneServer.detect import keyDetect, config
-            proc = keyDetect.KeyDetect(**config.Detect_Config.keyConfig)
+            proc = keyDetect.KeyDetect(**config.Detect_Config.keyConfig, _q = keyword_q)
             jobs['key'] = proc
             proc.start()
     
         return "RealTime Keyword Detecting...."
     elif request.method == 'GET':
         return tool.HTTPError(403,'Wrong Access', userIP)
-
 """
     API서버 News Detect
 
@@ -248,15 +259,68 @@ def news():
             return tool.HTTPError(403, 'Unauthorized Access!', key)
 
         from aloneServer import socketio, jobs
-        
         if jobs['news']:
             return tool.HTTPError(423, 'Already Detecting.')
         else: #첫 접근
             from aloneServer.detect import newsDetect, config
-            proc = newsDetect.NewsDetect(**config.Detect_Config.newsConfig)
-            jobs['news'] = proc
+            proc = newsDetect.NewsDetect(**config.Detect_Config.newsConfig, _q = q)
             proc.start()
-    
+            jobs['news'] = proc
         return "NEWS Detecting...."
     elif request.method == 'GET':
         return tool.HTTPError(403,'Wrong Access', userIP)
+"""
+    API서버 WordCloud Draw
+
+    * 호출시 wordCloud 이미지 생성
+
+    * 외부접근시 이미지출력, [PARAMETER : type]
+"""
+@app.route('/word')
+def word():
+    import nltk
+    from konlpy.corpus import kolaw
+    from konlpy.tag import Twitter; nlp = Twitter()
+    from wordcloud import WordCloud, ImageColorGenerator
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from PIL import Image
+    from matplotlib import font_manager, rc
+
+    from aloneServer.manager import APIC
+    data = dict()
+    stop_words = ['일','년','이','것','그','수','존나','너무','등','때','중','분','나','짱']
+    wType = "지진"
+    src = "img\\"
+
+    if wType is "지진":
+        templetName = "earth.png"
+        fileName = "wordEq.png"
+    elif wType is "날씨이상":
+        templetName = "earth.png"
+        fileName = "wordWe.png"
+    elif wType is "사고":
+        templetName = "earth.png"
+        fileName = "wordAc.png"
+
+    row = APIC.process("wordSelect", wType, 1000)
+    for r in row:
+        if r[0] not in stop_words:
+            data[r[0]] = r[1]
+
+    korea_coloring = np.array(Image.open(src+"earth.png"))
+    image_colors = ImageColorGenerator(korea_coloring)
+    wordcloud = WordCloud(font_path="c:/Windows/Fonts/H2SA1M.ttf",
+                            relative_scaling=0.1,
+                            mask=korea_coloring,
+                            background_color=None,
+                            mode='RGBA',
+                            min_font_size=1,
+                            max_font_size=140,
+                            max_words=2000,
+                            color_func=tool.grey_color_func,
+                            random_state=42).generate_from_frequencies(data)
+    
+    wordcloud.to_file(src+fileName)
+    return send_file("..\\"+src+fileName, mimetype='image/png')
